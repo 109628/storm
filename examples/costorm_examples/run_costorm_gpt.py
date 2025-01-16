@@ -23,44 +23,49 @@ from knowledge_storm.logging_wrapper import LoggingWrapper
 from knowledge_storm.rm import YouRM, BingSearch, BraveRM, SerperRM, DuckDuckGoSearchRM, TavilySearchRM, SearXNG
 from knowledge_storm.utils import load_api_key
 
+#Custom import 
+from custom_models.models import ModelClass
+
 
 def main(args):
-    load_api_key(toml_file_path='secrets.toml')
+    
+    ####################### commenting the following ##############################
+    # load_api_key(toml_file_path='secrets.toml')
     lm_config: CollaborativeStormLMConfigs = CollaborativeStormLMConfigs()
-    openai_kwargs = {
-        "api_key": os.getenv("OPENAI_API_KEY"),
-        "api_provider": "openai",
-        "temperature": 1.0,
-        "top_p": 0.9,
-        "api_base": None,
-    } if os.getenv('OPENAI_API_TYPE') == 'openai' else {
-        "api_key": os.getenv("AZURE_API_KEY"),
-        "temperature": 1.0,
-        "top_p": 0.9,
-        "api_base": os.getenv("AZURE_API_BASE"),
-        "api_version": os.getenv("AZURE_API_VERSION"),
-    }
+    # openai_kwargs = {
+    #     "api_key": os.getenv("OPENAI_API_KEY"),
+    #     "api_provider": "openai",
+    #     "temperature": 1.0,
+    #     "top_p": 0.9,
+    #     "api_base": None,
+    # } if os.getenv('OPENAI_API_TYPE') == 'openai' else {
+    #     "api_key": os.getenv("AZURE_API_KEY"),
+    #     "temperature": 1.0,
+    #     "top_p": 0.9,
+    #     "api_base": os.getenv("AZURE_API_BASE"),
+    #     "api_version": os.getenv("AZURE_API_VERSION"),
+    # }
 
-    ModelClass = OpenAIModel if os.getenv('OPENAI_API_TYPE') == 'openai' else AzureOpenAIModel
-    # If you are using Azure service, make sure the model name matches your own deployed model name.
-    # The default name here is only used for demonstration and may not match your case.
-    gpt_4o_mini_model_name = 'gpt-4o-mini'
-    gpt_4o_model_name = 'gpt-4o'
-    if os.getenv('OPENAI_API_TYPE') == 'azure':
-        openai_kwargs['api_base'] = os.getenv('AZURE_API_BASE')
-        openai_kwargs['api_version'] = os.getenv('AZURE_API_VERSION')
+    # ModelClass = OpenAIModel if os.getenv('OPENAI_API_TYPE') == 'openai' else AzureOpenAIModel
+    # # If you are using Azure service, make sure the model name matches your own deployed model name.
+    # # The default name here is only used for demonstration and may not match your case.
+    # gpt_4o_mini_model_name = 'gpt-4o-mini'
+    # gpt_4o_model_name = 'gpt-4o'
+    # if os.getenv('OPENAI_API_TYPE') == 'azure':
+    #     openai_kwargs['api_base'] = os.getenv('AZURE_API_BASE')
+    #     openai_kwargs['api_version'] = os.getenv('AZURE_API_VERSION')
 
     # STORM is a LM system so different components can be powered by different models.
     # For a good balance between cost and quality, you can choose a cheaper/faster model for conv_simulator_lm
     # which is used to split queries, synthesize answers in the conversation. We recommend using stronger models
     # for outline_gen_lm which is responsible for organizing the collected information, and article_gen_lm
     # which is responsible for generating sections with citations.
-    question_answering_lm = ModelClass(model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs)
-    discourse_manage_lm = ModelClass(model=gpt_4o_model_name, max_tokens=500, **openai_kwargs)
-    utterance_polishing_lm = ModelClass(model=gpt_4o_model_name, max_tokens=2000, **openai_kwargs)
-    warmstart_outline_gen_lm = ModelClass(model=gpt_4o_model_name, max_tokens=500, **openai_kwargs)
-    question_asking_lm = ModelClass(model=gpt_4o_model_name, max_tokens=300, **openai_kwargs)
-    knowledge_base_lm = ModelClass(model=gpt_4o_model_name, max_tokens=1000, **openai_kwargs)
+    question_answering_lm =  ModelClass(model_name="gemini-2.0-flash-exp")
+    discourse_manage_lm =  ModelClass(model_name="gemini-2.0-flash-exp")
+    utterance_polishing_lm =  ModelClass(model_name="gemini-2.0-flash-exp")
+    warmstart_outline_gen_lm =  ModelClass(model_name="gemini-2.0-flash-exp")
+    question_asking_lm =  ModelClass(model_name="gemini-2.0-flash-exp")
+    knowledge_base_lm =  ModelClass(model_name="gemini-2.0-flash-exp")
 
     lm_config.set_question_answering_lm(question_answering_lm)
     lm_config.set_discourse_manage_lm(discourse_manage_lm)
